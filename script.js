@@ -11,10 +11,13 @@ function checkWeather(event) {
   console.log("Calling checkWeather")
   
   // Get the city name from the input value
-  let cityName = input.value;
+  let cityName = input.value.trim();
   
   // Fetch weather data for the given city
-  let api = `https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m,relativehumidity_2m,rain,showers,snowfall,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,sunrise,sunset,precipitation_sum,rain_sum&current_weather=true&timeformat=unixtime&timezone=Africa%2FCairo&city=${encodeURIComponent(cityName)}`;
+//   let api = `https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m,relativehumidity_2m,rain,showers,snowfall,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,sunrise,sunset,precipitation_sum,rain_sum&current_weather=true&timeformat=unixtime&timezone=Africa%2FCairo&city=${encodeURIComponent(cityName)}`;
+
+let apiKey = `6732cdc972842b4fee486e61cf1443f8`;
+let api = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`;
   
   console.log("Initiating call")
   fetch(api)
@@ -23,11 +26,17 @@ function checkWeather(event) {
         console.log("Logging data: ", data)
       // Get the weather information from the data object
     //   let temperature = Math.round(temperature); 
-        let relativehumidity = data.hourly.relativehumidity_2m?.reduce((sum, val) => sum += val, 0) / data.hourly.relativehumidity_2m.length
-      let weatherInfo = {
-        ...data.current_weather,
-        relativehumidity: Math.round(relativehumidity)
-      };
+
+    //     let relativehumidity = data.hourly.relativehumidity_2m?.reduce((sum, val) => sum += val, 0) / data.hourly.relativehumidity_2m.length
+    //   let weatherInfo = {
+    //     ...data.current_weather,
+    //     relativehumidity: Math.round(relativehumidity)
+    //   };
+        let weather ={
+            temperature:data.main.temp,
+            humidity:data.main.humidity,
+            
+        }
       console.log("Logging WeatherInfo: ", weatherInfo);
      
       // Update the HTML elements with the weather information
@@ -38,10 +47,11 @@ function checkWeather(event) {
       let humidityElement = document.querySelector(".humidity");
       let windElement = document.querySelector(".wind");
 
-      console.log("This is the city name: ", cityName, weatherInfo.temperature_2m, weatherInfo.windspeed_10m, weatherInfo.weathercode)
+      console.log("This is the city name: ", cityName, weather.temperature, weather.windspeed_10m, weatherInfo.weathercode)
       
       cityElement.textContent = cityName;
-      tempElement.innerHTML = `${weatherInfo.temperature} <sup> °C.</sup>`;
+
+      tempElement.innerHTML = `${weather.temperature} <sup> °C.</sup>`;
       weatherIconElement.src = getWeatherIconUrl(weatherInfo.weathercode);
       weatherDescElement.textContent = getWeatherDescription(weatherInfo.weathercode);
       humidityElement.textContent = `Humidity: ${weatherInfo.relativehumidity}%`;
